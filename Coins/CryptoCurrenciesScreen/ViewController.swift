@@ -30,9 +30,8 @@ class ViewController: UIViewController {
     
     private var cryptoCurrencyModels: [CryptoCurrencyCellModel] = [] {
         didSet {
-            RunLoop.main.perform(inModes: [.default]) {
+            RunLoop.main.perform(inModes: [.common]) {
                 self.tableView.reloadData()
-                if self.refreshControl.isRefreshing { self.refreshControl.endRefreshing() }
             }
         }
     }
@@ -73,6 +72,9 @@ private extension ViewController {
         paginator.refresh { [weak self] state in
             if case Paginator.State.pageLoaded(cryptoCurrencies: let cryptoCurrencies) = state {
                 self?.cryptoCurrencyModels = cryptoCurrencies.map{CryptoCurrencyCellModel(currency: $0)}
+            }
+            RunLoop.main.perform(inModes: [.default]) {
+                self?.refreshControl.endRefreshing()
             }
         }
     }
